@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#f6f3eb">
+  <title>留一份 · 小红书本地下载</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="page-shell">
+    <header class="masthead">
+      <a class="wordmark" href="./" aria-label="留一份首页"><span class="brand-mark" aria-hidden="true">留</span>留一份<span class="wordmark-en">LOCAL ARCHIVE</span></a>
+      <span class="local-label"><span class="status-dot" aria-hidden="true"></span>浏览器静态试验版</span>
+    </header>
+
+    <main id="main">
+
+      <section class="input-section" aria-labelledby="input-title">
+        <div class="section-heading"><span class="step-number">01</span><h2 id="input-title">先放进一条链接</h2><span class="section-aside">分享文案也可以</span></div>
+        <form id="parse-form">
+          <label class="sr-only" for="share-text">小红书链接或完整分享文案</label>
+          <textarea id="share-text" name="text" rows="3" maxlength="15000" placeholder="在这里粘贴小红书链接，或复制来的整段分享文案…" aria-describedby="input-help" data-lock></textarea>
+          <div class="input-bottom">
+            <p id="input-help">支持小红书笔记链接与短链接。仅处理你有权保存的内容。</p>
+            <div class="input-actions">
+              <button type="button" id="clear-button" class="button secondary" data-lock>清空</button>
+              <button type="submit" id="parse-button" class="button primary" data-lock>粘贴并解析 <span aria-hidden="true">↗</span></button>
+            </div>
+          </div>
+        </form>
+        <p id="parse-status" class="status-line" role="status" aria-live="polite"></p>
+        <p id="parse-error" class="error-box" role="alert" hidden></p>
+      </section>
+
+      <section class="results-section" aria-labelledby="results-title" aria-busy="false" id="results-section">
+        <div class="section-heading"><span class="step-number">02</span><h2 id="results-title">挑选要留下的</h2><span id="asset-count" class="section-aside">等待解析</span></div>
+        <div id="empty-state" class="empty-state">
+          <div class="paper-stack" aria-hidden="true"><span></span><span></span><span>留</span></div>
+          <h3>你的下一份收藏，从这里开始</h3>
+          <p>解析后，图片和视频会出现在这里。<br>先看看预览，再选择下载。</p>
+          <span class="empty-caption">PASTE A LINK. KEEP A MOMENT.</span>
+        </div>
+        <div id="note-content" hidden>
+          <div class="note-heading"><div><p class="eyebrow">这次的收藏</p><h3 id="note-title"></h3><p id="note-author" class="muted"></p></div><span class="note-stamp" aria-hidden="true">待收藏</span></div>
+          <ul id="warnings" class="warnings" aria-label="解析提示" hidden></ul>
+          <div class="selection-bar">
+            <label class="check-label"><input id="select-all" type="checkbox" data-lock>全选</label>
+            <button id="select-none" type="button" class="text-button" data-lock>清空选择</button>
+            <span id="selection-count" class="selection-count" role="status">已选 0 项</span>
+          </div>
+          <div id="asset-grid" class="asset-grid"></div>
+          <p class="preview-note">预览仅供查看，不代表原始画质。浏览器尝试获取并校验原文件；图片会校验原始尺寸。</p>
+        </div>
+      </section>
+
+      <section class="download-section" aria-labelledby="download-title">
+        <div class="section-heading"><span class="step-number">03</span><h2 id="download-title">选一种带走的方式</h2></div>
+        <fieldset class="download-modes" id="download-modes">
+          <legend class="sr-only">下载方式</legend>
+          <label class="mode-card"><input type="radio" name="mode" value="album" data-lock><span><strong>保存到相册</strong><span class="mode-description">逐项准备原文件，通过系统分享菜单保存图片或视频。</span></span><span class="mode-number" aria-hidden="true">↗</span></label>
+          <label class="mode-card"><input type="radio" name="mode" value="zip" checked data-lock><span><strong>打包 ZIP <span class="tag">推荐</span></strong><span class="mode-description">一次保存，整齐放好。部分失败时附带失败清单。</span></span><span class="mode-number" aria-hidden="true">.zip</span></label>
+          <label class="mode-card"><input type="radio" name="mode" value="direct" data-lock><span><strong>逐个原文件</strong><span class="mode-description">按顺序获取，每个文件单独保存到下载目录。</span></span><span class="mode-number" aria-hidden="true">1 / 1</span></label>
+        </fieldset>
+        <p id="mode-help" class="mode-help">ZIP 会包含获取成功的文件；未成功的项目记录在「下载失败.txt」中。</p>
+        <div class="download-bar"><p><strong id="download-count">还没有选择文件</strong><span>浏览器直接访问小红书；跨域限制可能导致解析或下载失败。</span></p><button id="download-button" type="button" class="button primary" disabled data-lock>下载所选文件 <span aria-hidden="true">↓</span></button></div>
+        <div id="download-feedback" class="download-feedback" hidden>
+          <p id="download-status" role="status" aria-live="polite" aria-atomic="true"></p>
+          <progress id="download-progress" aria-label="文件获取进度" hidden></progress>
+          <div id="album-actions" hidden>
+            <p id="album-help" class="mode-help"></p>
+            <div class="album-buttons">
+              <button type="button" id="album-share" class="button primary" hidden data-lock>打开分享菜单</button>
+              <a id="album-open" class="button secondary" target="_blank" rel="noopener" hidden>打开原文件</a>
+              <button type="button" id="album-retry" class="button secondary" hidden data-lock>重试当前项</button>
+              <button type="button" id="album-next" class="button secondary" data-lock>下一项</button>
+              <button type="button" id="album-end" class="button secondary" data-lock>结束本次保存</button>
+            </div>
+          </div>
+          <ul id="failure-list" class="failure-list" aria-label="下载失败详情" hidden></ul>
+          <div class="retry-actions">
+            <button type="button" id="retry-button" class="button secondary" hidden data-lock>重试失败项目</button>
+            <button type="button" id="small-download-button" class="button secondary" hidden data-lock>下载小尺寸项目</button>
+          </div>
+          <div id="saved-links" hidden><h3>没有出现保存提示？</h3><p id="fallback-help"></p><ul id="fallback-links"></ul></div>
+        </div>
+      </section>
+      <aside class="fine-print"><span class="fine-print-title">关于这份工具</span><p>静态试验版直接从浏览器访问小红书，可能受跨域限制而无法解析或下载。无需账号、密码或 Cookie；受访问权限、链接有效期与网络状态影响，部分内容可能无法获取。请尊重作者版权，仅保存你有权使用的素材。</p></aside>
+    </main>
+    <footer><span>留一份 <span class="footer-dot">/</span> 让喜欢有处安放</span><span>LOCAL FIRST. KEEP IT SIMPLE.</span></footer>
+  </div>
+  <dialog id="preview-dialog" aria-labelledby="preview-title">
+    <div class="dialog-header"><h2 id="preview-title">图片预览</h2><button id="close-preview" class="button secondary" type="button" autofocus>关闭 <span aria-hidden="true">×</span></button></div>
+    <div class="dialog-image-wrap"><img id="dialog-image" alt=""></div>
+    <p id="preview-error" class="error-box" hidden>预览暂时无法显示，可尝试下载原文件；预览失败不代表原文件无法下载。</p>
+    <p class="preview-note">这是预览图，不是原文件。按 Esc 关闭。</p>
+  </dialog>
+</body>
+</html>
